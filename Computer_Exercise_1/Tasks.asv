@@ -1,7 +1,4 @@
 %% Creating 2 ARMA polynomials
-% Customized functions for this script can be found in the bottom. I have
-% been using them regularly througout the script. 
-
 [A1, C1] = polynomial(1);
 [A2, C2] = polynomial(2); 
 ARMA_poly1 = idpoly(A1, [], C1);
@@ -110,7 +107,6 @@ plot(rar_armax.OutputData)
 basicIdentification(rar_armax.OutputData, 60, 0.05)
 present(model_armax)
 res_variance = var(rar_armax.OutputData)
-
 %% Functions 
 % Function handling what set to use (A,C)- polynomials
 function [A,C] = polynomial(n)
