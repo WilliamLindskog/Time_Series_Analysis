@@ -34,6 +34,7 @@ theoEstDiff(ARMA_poly1, y1, sigma2, m); % Not identical as we do not have infini
 %% Re-estimation y1
 m = 20; identify(y1, m, 0.05); 
 data1 = iddata(y1); 
+ARpModel(5, data1); % 
 
 %% Create ARMA Model
 p = 1; q = 2; am11_model = armax(y1, [p q]);
@@ -48,7 +49,7 @@ clear
 load data.dat
 load noise.dat
 data = iddata(data);
-ARpModel(5, data, noise); % Seems like p = 4 or 5 gives best result, considering FPE, MSE and Fit to estimation data
+%ARpModel(5, data, noise); % Seems like p = 4 or 5 gives best result, considering FPE, MSE and Fit to estimation data
 
 %% ARMA(p,q) model
 % ARMA(2,1) has the lowest FPE
@@ -143,10 +144,11 @@ stem(0:m, r_est, 'r')
 end
 
 % Function plotting AR processes of different orders
-function ARpModel(p, Data, Noise)
+function ARpModel(p, Data)
+rng(0)
 figure()
 for p = 1:5
-    ar_model = arx(Data, [p]);
+    ar_model = arx(Data, p);
     rar = resid(ar_model, Data);
     
     present(ar_model);
@@ -154,7 +156,7 @@ for p = 1:5
     subplot(1,5,p)
     hold on
     plot(rar)
-    plot(Noise, 'r')
+    %plot(Noise, 'r')
 end
 end
 
