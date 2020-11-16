@@ -9,6 +9,4 @@ w = sqrt(2) * randn(N + 100, 1);
 u = filter(C3, A3, w);
 y = filter(C, A1, e) + filter(B, A2, u);
 u = u(101:end); y = y(101:end);
-
-clear A1, A2, C, B, e, w, A3, C3
 end

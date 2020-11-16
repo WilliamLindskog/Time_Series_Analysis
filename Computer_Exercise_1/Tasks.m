@@ -66,7 +66,7 @@ identify(rar_ar.y, 40, 0.05);
 identify(rar_arma.y, 40, 0.05);
 
 %% Estimation of a SARIMA-process
-s = 12; A = [1 -1.5 0.7]; C = [1 zeros(1,s-1) -0.5]; e = randn(600,1);
+s = 12; A = [1 -1.5 0.7]; C = [1 zeros(1,s-1) -0.5]; e = randn(10000,1);
 y = estSARIMA(s, A, C, e); 
 %plot(y);
 identify(y, 30, 0.05);

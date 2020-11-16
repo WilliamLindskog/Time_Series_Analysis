@@ -12,17 +12,23 @@ arma_model_u = armax(u, [1 2]);
 
 %% Determine orders of B and A polynomials
 upw = randn(500,1);
-%pqARMA(2,2,upw); % ARMA(1,2) gives reasonable coefficients 
+pqARMA(2,2,upw); % ARMA(1,2) gives reasonable coefficients 
 ARMAupw = armax(upw, [1 2]);
-ypw = filter(ARMAupw.a, ARMAupw.c, y);
+%basicAnalysis(upw, 80, 0.05);
+%h = xcorr(u, y);
+
+%basicAnalysis(u, 80, 0.05);
+%upw = randn(999,1);
+%ypw = h.*upw;
+%pqARMA(2,2,u_PreWhite);% I find that an ARMA(2,2) seems reasonable 
+%arma_model_u = armax(upw, [2 2]); 
 
 %% CCF u and y
-M = 40; stem(-M:M, xcorr(upw, ypw, M)); 
+M = 40; stem(-M:M, xcorr(u, y, M)); 
 title("Cross Correlation Function") 
 xlabel("Lag")
-hold on    
-plot(-M:M, 2/sqrt(length(upw))*ones(1, 2*M+1), "--")
-plot(-M:M, -2/sqrt(length(upw))*ones(1, 2*M+1), "--")
+hold on
+plot(-M:M, 2/sqrt(length(w))*ones(1, 2*M+1), "--")
+%plot(-M:M, -2/sqrt(length(w))*ones(1, 2*M+1), "--")
 hold off
-H = xcorr(upw, ypw, M);
 %% Pre-whiten y(t)
