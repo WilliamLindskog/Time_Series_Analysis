@@ -1,4 +1,5 @@
 function basicAnalysis(est, maxOrder, signf)
+figure()
 subplot(131)
 acf(est, maxOrder, signf, 1)
 title("ACF")
