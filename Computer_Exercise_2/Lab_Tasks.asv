@@ -135,78 +135,14 @@ conf_2 = norminv([sign/2 1-sign/2]).*sqrt(sigma2).*sqrt(sum(F26.^2));
 disp('Share of prediction errors outside confidence interval (k=3)')
 disp([num2str((sum(abs(res_3) > conf_1(2))/length(res_3))*100), '%', newline])
 disp('Share of prediction errors outside confidence interval (k=26):')
-disp([num2str((sum(abs(res_26) > conf_2(2))/length(res_26))*100), '%'])
+disp([num2str((sum(abs(res_26) > conf_2(2))/length(res_2))*100), '%'])
 
-%% 2.3 Plots of processes, predictions and prediction errors
-
-figure()
-subplot(221)
-hold on
-plot(yhat_3, 'r')
-plot(svedala, 'b')
-legend('3 step estimation', 'True values')
-subplot(222)
-plot(res_3)
-yline(conf_1(1), '--r');
-yline(conf_1(2), '--r');
-subplot(223)
-hold on
-plot(yhat_26, 'r')
-plot(svedala, 'b')
-legend('26 step estimation', 'True values')
-subplot(224)
-plot(res_26)
-yline(conf_2(1), '--r');
-yline(conf_2(2), '--r');
-
-basicIdentification(res_3, 40, 0.05);
-clear all 
-%% (2.4) Prediction of ARMAX-processes
+%% Prediction of ARMAX-processes
 
 load sturup
-A = [1 -1.49 0.57]; B = [0 0 0 0.28 -0.26]; C = [1]; 
+A = [1 -1.49 0.57]; B = [0 0 0 0.28 -0.26]; C = 1; 
 
-[F3, G3] = polydiv(C, B, 3);
-yhat_3 = modFilt(G3, C, sturup);
-res_3 = sturup(3:end) - yhat_3; 
-
-[F26, G26] = polydiv(C, B, 26); 
-yhat_26 = modFilt(G26, C, sturup);
-res_26 = sturup(3:end) - yhat_26;
-
-m3 = mean(res_3);
-m26 = mean(res_26);
-
-%%
-clear all
-
-%% (2.5) Prediction of SARIMA-process
-
-load svedala
-plot(svedala(1:100))
-S = 24;
-
+%% Prediction of SARIMA-process
 AS = [1 zeros(1, S-1) -1];
-A = [1 -1.49 0.57]; C = [1]; 
 
-A_star = conv(A, AS);
-e = randn(1361,1);
-y = modFilt(C, A_star, e);
-%plot(y)
-%basicAnalysis(y, 100, 0.05);
 
-y_s = modFilt(AS, 1, y);
-data = iddata(y_s);
-
-A = [1 0 0]; B = []; C = [1 zeros(1, S)]; 
-model_init = idpoly(A, B, C); 
-model_init.Structure.C.Free = [zeros(1, S), 1];
-model_init.Structure.A.Free = [0 1 1];
-
-model_armax = pem(data, model_init); 
-rar_armax = resid(model_armax, data);
-
-plot(rar_armax.OutputData)
-basicAnalysis(rar_armax.OutputData, 30, 0.05)
-present(model_armax)
-res_variance = var(rar_armax.OutputData)
