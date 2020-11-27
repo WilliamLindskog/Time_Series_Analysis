@@ -48,8 +48,8 @@ clear
 
 load data.dat
 load noise.dat
-data = iddata(data);
-%ARpModel(5, data, noise); % Seems like p = 4 or 5 gives best result, considering FPE, MSE and Fit to estimation data
+data = iddata(data); % 
+ARpModel(5, data); % Seems like p = 4 or 5 gives best result, considering FPE, MSE and Fit to estimation data
 
 %% ARMA(p,q) model
 % ARMA(2,1) has the lowest FPE
@@ -60,12 +60,14 @@ ar_model = arx(data, [4]);
 arma_model = armax(data, [2 1]);
 
 rar_ar = resid(ar_model, data);
-rar_arma = resid(arma_model, data);
+rar_arma = resid(arma_model, data); % ARMA(2,1) has lower FPE
 
 identify(rar_ar.y, 40, 0.05);
 identify(rar_arma.y, 40, 0.05);
 
 %% Estimation of a SARIMA-process
+clear all 
+
 s = 12; A = [1 -1.5 0.7]; C = [1 zeros(1,s-1) -0.5]; e = randn(10000,1);
 y = estSARIMA(s, A, C, e); 
 %plot(y);
@@ -91,14 +93,21 @@ basicIdentification(rar_armax.OutputData, 30, 0.05)
 present(model_armax)
 res_variance = var(rar_armax.OutputData)
 
+%% Not removing trend
+clear all 
+
+s = 12; A = [1 -1.5 0.7]; C = [1 zeros(1,s-1) -0.5]; e = randn(10000,1);
+y = estSARIMA(s, A, C, e); 
+%plot(y);
+identify(y, 30, 0.05); % Higher FPE and MSE, using more degrees of freedom 
 %% Estimation on Real Data
+clear all
+
 load svedala
 
 data = iddata(svedala);
 
-A = [1 zeros(1,25)];
-B = [];
-C = [1 zeros(1,24)];
+A = [1 zeros(1,25)]; B = []; C = [1 zeros(1,24)];
 
 model_init = idpoly(A,B,C);
 model_init.Structure.A.Free = [0 1 1 zeros(1,20) 1 1 1];
