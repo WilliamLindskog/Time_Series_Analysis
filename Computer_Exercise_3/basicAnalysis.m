@@ -1,0 +1,12 @@
+function basicAnalysis(est, maxOrder, signf)
+figure()
+subplot(131)
+acf(est, maxOrder, signf, 1)
+title("ACF")
+subplot(132)
+pacf(est, maxOrder, signf, 1)
+title("PACF")
+subplot(133)
+normplot(est)
+title("Normplot")
+end
