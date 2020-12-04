@@ -2,7 +2,7 @@
 n = 500; A1 = [1 -.65]; A2 = [1 .90 .78]; C = 1; B = [0 0 0 0 .4]; A3 = [1 .5]; C3 = [1 -.3 .2]; 
 [u, y] = BJmodel(0, n, A1, A2, C, B, A3, C3);
 clearvars A1 A2 C B e w A3 C3 n
-doublePlot(u,y)
+%doublePlot(u,y)
 arma_model_u = armax(u, [1 2]);
     
 %% Model with input u (analysis)
@@ -60,11 +60,15 @@ ehat = resid(MboxJ, z);
 plotCCF(u, ehat.OutputData, 40);
 basicAnalysis(ehat.OutputData, 40, 0.05);
 
-clear all
+
+% Seems to be white noise, parameter estimates different from zero, CCF
+% seems to be white. 
 
 %% Hairdryer data (2.2) -------------------
 
-load('tork.dat')
+clear all
+
+load('tork.dat') % sampling distance 0.08s, delay 2*0.08s = 0.16s
 
 tork = tork - repmat(mean(tork), length(tork), 1); 
 y = tork(:,1); u = tork(:,2); z = iddata(y,u); 
@@ -81,12 +85,15 @@ model_pw = pem(u, model_pw_init);
 rar = resid(z.InputData, model_pw);
 
 basicAnalysis(rar.OutputData, 100, 0.05);
-present(model_pw);
+whitenessTest(rar.OutputData, 0.05, 100); % white noise
+%present(model_pw);
 
-clear A3 B C3 model_pw_init
+%clear A3 B C3 model_pw_init
 
 
 %% Prediction of ARMA-processes (2.3) ----------------
+
+clear all
 
 load svedala
 plot(svedala)
@@ -97,13 +104,13 @@ A = [1 -1.79 0.84]; C = [1 -0.18 -0.11];
 [F3, G3] = polydiv(C,A,3); [F26, G26] = polydiv(C,A,26); 
 
 yhat_3 = modFilt(G3, C, svedala);
-res_3 = svedala(3:end) - yhat_3; 
+res_3 = svedala(5:end) - yhat_3; 
 
 yhat_26 = modFilt(G26, C, svedala);
-res_26 = svedala(3:end) - yhat_26;
+res_26 = svedala(28:end) - yhat_26; % if not reight, check function modFilt. 
 
 %% Necessary variables for question
-m3 = mean(res_3);
+m3 = mean(res_3); % expectation 0 
 m26 = mean(res_26);
 var_res_3 = var(res_3);
 var_res_26 = var(res_26);
@@ -120,7 +127,7 @@ res = svedala(3:end) - yhat;
 basicAnalysis(res, 100, 0.05);
 figure()
 whitenessTest(res);
-sigma2 = var(res);
+sigma2 = var(res); %0.3751
 
 %% 2.3 Confidence intervals for prediction error
 
@@ -128,6 +135,11 @@ sign = 0.05;
 
 conf_1 = norminv([sign/2 1-sign/2]).*sqrt(sigma2).*sqrt(sum(F3.^2));
 conf_2 = norminv([sign/2 1-sign/2]).*sqrt(sigma2).*sqrt(sum(F26.^2));
+
+theVar3 = sigma2.*(sum(F3.^2));
+theVar26 = sigma2.*(sum(F26.^2));
+
+% Similar but different 
 
 %% Percentage of errors outside confidence interval
 
@@ -158,9 +170,16 @@ plot(res_26)
 yline(conf_2(1), '--r');
 yline(conf_2(2), '--r');
 
-basicIdentification(res_3, 40, 0.05);
-clear all 
+basicIdentification(res_26, 40, 0.05);
+
+covf(res_3, 40, 100)
+
+% Doesn't capture the seasonality, model too simple, therefore doesn't look
+% like a typical process
+
 %% (2.4) Prediction of ARMAX-processes
+
+clear all
 
 load sturup
 A = [1 -1.49 0.57]; B = [0 0 0 0.28 -0.26]; C = [1]; % delay = 3
@@ -190,6 +209,8 @@ clear all
 
 %% (2.5) Prediction of SARIMA-process
 
+clear all
+
 load svedala
 plot(svedala(1:100))
 S = 24;
@@ -217,4 +238,4 @@ rar_armax = resid(model_armax, data);
 plot(rar_armax.OutputData)
 basicAnalysis(rar_armax.OutputData, 30, 0.05)
 present(model_armax)
-res_variance = var(rar_armax.OutputData)
+res_variance = var(rar_armax.OutputData) 
